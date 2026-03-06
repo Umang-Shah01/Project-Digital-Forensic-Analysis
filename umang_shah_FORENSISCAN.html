@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ForensiScan — Digital Forensic Investigation | Umang Shah | Heriot-Watt 2023</title>
+<meta name="description" content="ForensiScan: A complete digital forensic investigation by Umang Shah — forensic imaging with FTK Imager and OSForensics, deep analysis with Autopsy and Bulk Extractor, NIST-compliant chain-of-custody, and court-ready technical report. Distinction grade. Heriot-Watt University MSc Cyber Security 2023."/>
+<meta name="keywords" content="ForensiScan digital forensics, FTK Imager forensic imaging, Autopsy forensic analysis, OSForensics, Bulk Extractor, NIST chain of custody, digital forensics investigation India, Umang Shah Heriot-Watt, cyber forensics Mumbai, file recovery hash analysis"/>
+<meta name="author" content="Umang Shah"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ScholarlyArticle","headline":"ForensiScan: Digital Forensic Investigation — Evidence Acquisition, Analysis and Reporting","author":{"@type":"Person","name":"Umang Shah","alumniOf":{"@type":"CollegeOrUniversity","name":"Heriot-Watt University"}},"datePublished":"2023-04-06","description":"Full digital forensic investigation — forensic imaging with FTK Imager and OSForensics, evidence analysis with Autopsy and Bulk Extractor, NIST-compliant chain of custody, hash verification, and court-ready technical report.","keywords":"digital forensics, FTK Imager, Autopsy, OSForensics, Bulk Extractor, chain of custody, NIST forensics, file carving, hash analysis, forensic imaging","publisher":{"@type":"CollegeOrUniversity","name":"Heriot-Watt University"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#090c10;--paper:#f7f3ec;--warm:#edeae2;
+  --blue:#1a3f6f;--blue-l:#2563a8;--blue-p:rgba(26,63,111,0.08);
+  --gold:#b8902a;--gold-l:#d4a93a;
+  --teal:#1a5f5f;--teal-l:#237a7a;--teal-p:rgba(26,95,95,0.08);
+  --text:#1c1c2a;--muted:#6a6a78;--border:#ddd8cc;
+  --ffd:'Playfair Display',Georgia,serif;
+  --ffs:'Syne',sans-serif;--ffm:'IBM Plex Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--text);font-family:var(--ffs);overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:997}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:64px;background:rgba(9,12,16,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.07)}
+.nav-brand{font-family:var(--ffd);font-size:1rem;color:var(--paper);text-decoration:none}
+.nav-brand span{color:var(--blue-l)}
+.nav-back{font-family:var(--ffm);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,236,0.45);text-decoration:none;transition:color .2s}
+.nav-back:hover{color:var(--paper)}
+.nav-badge{font-family:var(--ffm);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(26,63,111,0.2);color:#6ba3e8;border:1px solid rgba(37,99,168,0.35);padding:6px 16px;border-radius:2px}
+
+/* HERO */
+.hero{background:var(--ink);min-height:90vh;padding:120px 80px 80px;display:grid;grid-template-columns:1fr 400px;gap:72px;align-items:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(247,243,236,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(247,243,236,0.025) 1px,transparent 1px);background-size:52px 52px}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 60%,rgba(26,63,111,0.2) 0%,transparent 60%),radial-gradient(ellipse at 85% 20%,rgba(26,95,95,0.12) 0%,transparent 50%)}
+.hero-c{position:relative;z-index:2}
+.htag{display:inline-flex;align-items:center;gap:10px;font-family:var(--ffm);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:#6ba3e8;border:1px solid rgba(37,99,168,0.35);border-radius:2px;padding:5px 14px;margin-bottom:24px}
+.htag::before{content:'';width:7px;height:7px;background:#6ba3e8;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+h1.ht{font-family:var(--ffd);font-size:clamp(2.8rem,5vw,5rem);line-height:1.05;color:var(--paper);margin-bottom:12px}
+h1.ht em{color:#6ba3e8;font-style:italic;display:block}
+.hsub{font-family:var(--ffm);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,243,236,0.38);margin-bottom:28px}
+.hdesc{font-size:1.02rem;color:rgba(247,243,236,0.6);line-height:1.82;max-width:560px;margin-bottom:32px}
+.hdesc strong{color:var(--paper)}
+.hmeta{display:flex;flex-wrap:wrap;gap:26px}
+.hml{font-family:var(--ffm);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(247,243,236,0.3);display:block;margin-bottom:3px}
+.hmv{font-size:.88rem;color:var(--paper);font-weight:600;display:block}
+
+.hero-panel{position:relative;z-index:2}
+.evidence-box{background:rgba(26,63,111,0.1);border:1px solid rgba(37,99,168,0.25);border-radius:4px;padding:26px;position:relative}
+.evidence-box::before{content:'CASE EVIDENCE LOG';position:absolute;top:-9px;left:20px;background:var(--ink);padding:0 10px;font-family:var(--ffm);font-size:.58rem;letter-spacing:.18em;color:rgba(107,163,232,0.6)}
+.ev-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--ffm)}
+.ev-row:last-child{border-bottom:none}
+.ev-k{font-size:.64rem;color:rgba(247,243,236,0.38);letter-spacing:.08em}
+.ev-v{font-size:.78rem;color:#6ba3e8;font-weight:500}
+.dist-badge{margin-top:18px;background:rgba(184,144,42,0.1);border:1px solid rgba(184,144,42,0.3);border-radius:3px;padding:14px;text-align:center}
+.db-l{font-family:var(--ffm);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,144,42,0.6);display:block;margin-bottom:3px}
+.db-v{font-family:var(--ffd);font-size:1.4rem;color:var(--gold);font-weight:700}
+
+/* STAT BAR */
+.sbar{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid rgba(255,255,255,0.06)}
+.sbi{background:var(--ink);padding:26px 20px;text-align:center;border-right:1px solid rgba(255,255,255,0.06);transition:background .2s}
+.sbi:last-child{border-right:none}
+.sbi:hover{background:#0f1318}
+.sbn{font-family:var(--ffd);font-size:1.9rem;color:#6ba3e8;display:block;line-height:1;margin-bottom:6px;font-weight:700}
+.sbl{font-family:var(--ffm);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(247,243,236,0.32);line-height:1.4}
+
+/* SECTIONS */
+.sec{padding:88px 80px}
+.sec-alt{background:var(--warm)}
+.sec-dk{background:var(--ink);padding:88px 80px}
+.sh{display:flex;align-items:center;gap:18px;margin-bottom:56px}
+.snum{font-family:var(--ffm);font-size:.66rem;color:#6ba3e8;letter-spacing:.15em;flex-shrink:0}
+h2.st{font-family:var(--ffd);font-size:clamp(1.7rem,2.8vw,2.5rem);color:var(--text);line-height:1.15}
+.sec-dk h2.st{color:var(--paper)}
+.sec-dk .snum{color:#6ba3e8}
+.sr{flex:1;height:1px;background:var(--border);margin-left:14px}
+.sec-dk .sr{background:rgba(247,243,236,0.08)}
+.fade{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.fade.in{opacity:1;transform:translateY(0)}
+
+.callout{border-left:3px solid #6ba3e8;background:var(--blue-p);padding:18px 20px;border-radius:0 4px 4px 0;margin:20px 0;font-size:.92rem;line-height:1.72;color:var(--muted)}
+.callout strong{color:var(--text)}
+.callout.gold{border-left-color:var(--gold);background:rgba(184,144,42,0.07)}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-p)}
+
+/* TOOLS GRID */
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin:28px 0}
+.tool-card{background:var(--paper);padding:28px;transition:background .2s}
+.tool-card:hover{background:var(--warm)}
+.tc-role{font-family:var(--ffm);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#6ba3e8;margin-bottom:8px;display:block}
+.tc-name{font-family:var(--ffd);font-size:1.2rem;color:var(--text);margin-bottom:6px}
+.tc-type{font-family:var(--ffm);font-size:.68rem;color:var(--muted);margin-bottom:12px;display:block}
+.tc-desc{font-size:.84rem;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.tc-used{font-family:var(--ffm);font-size:.68rem;color:var(--teal);letter-spacing:.05em}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:0;margin:28px 0}
+.step{display:flex;gap:22px;padding-bottom:32px}
+.step:last-child{padding-bottom:0}
+.step-l{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.step-num{width:34px;height:34px;border-radius:50%;background:var(--blue-p);border:1px solid rgba(37,99,168,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--ffm);font-size:.7rem;color:#6ba3e8;flex-shrink:0}
+.step-line{flex:1;width:1px;background:var(--border);margin-top:6px}
+.step:last-child .step-line{display:none}
+.step-c{padding-top:4px}
+.step-title{font-weight:700;font-size:.92rem;color:var(--text);margin-bottom:5px}
+.step-body{font-size:.86rem;color:var(--muted);line-height:1.65}
+.step-detail{font-family:var(--ffm);font-size:.72rem;color:#6ba3e8;margin-top:8px;display:block}
+
+/* ANALYSIS GRID */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:28px 0}
+.an-card{background:rgba(247,243,236,0.03);border:1px solid rgba(247,243,236,0.08);border-radius:3px;padding:22px;transition:border-color .2s,transform .2s}
+.an-card:hover{border-color:rgba(107,163,232,0.3);transform:translateY(-3px)}
+.an-card::before{content:'';display:block;width:28px;height:2px;background:#6ba3e8;margin-bottom:14px;border-radius:1px}
+.an-title{font-weight:700;font-size:.86rem;color:var(--paper);margin-bottom:7px}
+.an-body{font-size:.8rem;color:rgba(247,243,236,0.42);line-height:1.65}
+.an-tech{font-family:var(--ffm);font-size:.65rem;color:#6ba3e8;margin-top:10px;display:block;letter-spacing:.05em}
+
+/* COC TABLE */
+.coc-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.83rem}
+.coc-table th{background:var(--warm);border:1px solid var(--border);padding:10px 14px;text-align:left;font-family:var(--ffm);font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#6ba3e8;font-weight:400}
+.coc-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:top;color:var(--muted)}
+.coc-table tr:hover td{background:var(--warm)}
+.badge{display:inline-block;padding:2px 8px;border-radius:2px;font-family:var(--ffm);font-size:.64rem;font-weight:600}
+.badge-blue{background:rgba(37,99,168,0.1);color:#6ba3e8}
+.badge-green{background:rgba(26,95,95,0.1);color:var(--teal)}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin:20px 0}
+.tag{font-family:var(--ffm);font-size:.65rem;background:var(--warm);border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:2px;transition:all .15s;cursor:default}
+.tag:hover{background:var(--blue-p);border-color:rgba(37,99,168,0.3);color:#6ba3e8}
+
+.bottom-nav{background:var(--warm);padding:56px 80px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)}
+.bn-prev,.bn-next{text-decoration:none;display:flex;flex-direction:column;gap:5px}
+.bn-label{font-family:var(--ffm);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.bn-title{font-family:var(--ffd);font-size:1.1rem;color:var(--text);transition:color .2s}
+.bn-prev:hover .bn-title,.bn-next:hover .bn-title{color:var(--teal)}
+.bn-next{text-align:right}
+footer{background:var(--ink);padding:40px 80px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06)}
+.fc{font-family:var(--ffm);font-size:.62rem;color:rgba(247,243,236,0.22);letter-spacing:.07em}
+.fa{font-family:var(--ffd);font-size:1.1rem;color:var(--paper)}
+.fa span{color:var(--gold)}
+
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .hero{grid-template-columns:1fr;padding:100px 24px 60px}
+  .hero-panel{display:none}
+  .sbar{grid-template-columns:repeat(2,1fr)}
+  .sec,.sec-alt,.sec-dk{padding:64px 24px}
+  .tools-grid,.analysis-grid{grid-template-columns:1fr}
+  .bottom-nav{flex-direction:column;gap:28px;padding:40px 24px;text-align:center}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="umang_shah_HOME.html">Umang <span>Shah</span></a>
+  <a class="nav-back" href="umang_shah_HOME.html">← Back to Portfolio</a>
+  <div class="nav-badge">Distinction · Heriot-Watt 2023</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-c">
+    <div class="htag">Project 03 · Digital Forensics · F21FO Coursework</div>
+    <h1 class="ht">ForensiScan:<em>Full Investigation</em></h1>
+    <div class="hsub">Evidence Acquisition · Forensic Analysis · Court-Ready Report</div>
+    <p class="hdesc">A complete, end-to-end digital forensic investigation conducted as a <strong>professional Digital Forensics Analyst</strong> — creating forensically sound evidence images, performing deep multi-tool analysis, and producing a court-ready technical report with full <strong>NIST-compliant chain-of-custody documentation</strong>.</p>
+    <div class="hmeta">
+      <div><span class="hml">Institution</span><span class="hmv">Heriot-Watt University</span></div>
+      <div><span class="hml">Programme</span><span class="hmv">MSc Cyber Security (NCSC)</span></div>
+      <div><span class="hml">Role Simulated</span><span class="hmv">Digital Forensics Analyst</span></div>
+      <div><span class="hml">Grade</span><span class="hmv" style="color:var(--gold)">Distinction (70%+)</span></div>
+    </div>
+  </div>
+  <div class="hero-panel">
+    <div class="evidence-box">
+      <div class="ev-row"><span class="ev-k">Case Type</span><span class="ev-v">Digital Evidence Investigation</span></div>
+      <div class="ev-row"><span class="ev-k">Imaging Tools</span><span class="ev-v">FTK Imager + OSForensics</span></div>
+      <div class="ev-row"><span class="ev-k">Analysis Tools</span><span class="ev-v">Autopsy + Bulk Extractor</span></div>
+      <div class="ev-row"><span class="ev-k">Standard</span><span class="ev-v">NIST Guidelines</span></div>
+      <div class="ev-row"><span class="ev-k">Chain of Custody</span><span class="ev-v">Full Documentation ✓</span></div>
+      <div class="ev-row"><span class="ev-k">Deliverable</span><span class="ev-v">Technical Report + Video</span></div>
+      <div class="ev-row"><span class="ev-k">Forensic Scenarios</span><span class="ev-v">5 Illustrated</span></div>
+      <div class="dist-badge">
+        <span class="db-l">Academic Grade</span>
+        <span class="db-v">Distinction</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sbar">
+  <div class="sbi"><span class="sbn">2</span><span class="sbl">Imaging Tools<br/>Used</span></div>
+  <div class="sbi"><span class="sbn">2</span><span class="sbl">Analysis Tools<br/>Used</span></div>
+  <div class="sbi"><span class="sbn">5</span><span class="sbl">Forensic Analysis<br/>Techniques</span></div>
+  <div class="sbi"><span class="sbn">100%</span><span class="sbl">Chain of Custody<br/>Maintained</span></div>
+  <div class="sbi"><span class="sbn">✓</span><span class="sbl">Court-Ready<br/>Report Produced</span></div>
+</div>
+
+<!-- SCENARIO -->
+<section class="sec" id="overview">
+  <div class="sh fade"><span class="snum">01 /</span><h2 class="st">Case Scenario</h2><div class="sr"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start">
+    <div class="fade">
+      <p style="font-family:var(--ffd);font-size:1.2rem;line-height:1.65;font-style:italic;color:var(--text);margin-bottom:20px">"This was not a classroom exercise — I was assigned a real evidence file and asked to build a case around it, just as a working forensic analyst would."</p>
+      <p style="font-size:.95rem;color:var(--muted);line-height:1.82;margin-bottom:16px">The scenario: employed as a <strong style="color:var(--text)">Digital Forensics Analyst</strong> at a cybersecurity company, I was assigned by my line manager to investigate a piece of digital evidence recovered from a suspect's storage device. The brief was clear — treat this as a real investigation. Maintain chain-of-custody at every step. Produce a report that could stand up in court.</p>
+      <p style="font-size:.95rem;color:var(--muted);line-height:1.82;margin-bottom:16px">The digital evidence was provided via the F21FO course Canvas portal. My task: create forensically sound images using <strong style="color:var(--text)">two separate imaging tools</strong>, then perform deep analysis using <strong style="color:var(--text)">two separate analysis tools</strong>, documenting every step with timestamps, actions, and findings.</p>
+      <p style="font-size:.95rem;color:var(--muted);line-height:1.82">The final deliverable — a professional technical report and a 5-minute demonstration video — was assessed against the same criteria used in real forensic analysis: thoroughness, evidence integrity, technical accuracy, and quality of reflection.</p>
+    </div>
+    <div class="fade">
+      <div class="callout"><strong>Why Dual Tools?</strong> NIST guidelines recommend using multiple tools to cross-validate findings — because no single forensic tool is infallible. Discrepancies between tools can indicate either a tool limitation or a deeper evidence anomaly worth investigating.</div>
+      <div class="callout teal"><strong>Chain of Custody:</strong> Every action taken on the evidence was timestamped and documented — from initial receipt, through imaging, to analysis. This is what separates a forensic investigation from a simple file scan: the evidence can be traced, verified, and defended.</div>
+      <div class="callout gold"><strong>Distinction Grade:</strong> This coursework was awarded a <strong>Distinction (70%+)</strong> — the highest grade band at Heriot-Watt — for thoroughness of analysis, chain-of-custody documentation, and quality of the technical report and demonstration.</div>
+    </div>
+  </div>
+  <div class="tags fade">
+    <span class="tag">FTK Imager</span><span class="tag">OSForensics</span><span class="tag">Autopsy</span>
+    <span class="tag">Bulk Extractor</span><span class="tag">Chain of Custody</span><span class="tag">NIST Guidelines</span>
+    <span class="tag">Forensic Imaging</span><span class="tag">Hash Verification</span><span class="tag">File Carving</span>
+    <span class="tag">Email Analysis</span><span class="tag">Network Analysis</span><span class="tag">Metadata Extraction</span>
+    <span class="tag">Evidence Integrity</span><span class="tag">Technical Report</span><span class="tag">Digital Forensics</span>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="sec sec-alt" id="tools">
+  <div class="sh fade"><span class="snum">02 /</span><h2 class="st">Tools Used</h2><div class="sr"></div></div>
+  <div class="tools-grid fade">
+    <div class="tool-card">
+      <span class="tc-role">Primary Imaging Tool</span>
+      <div class="tc-name">FTK Imager</div>
+      <span class="tc-type">Forensic Imaging · Exterro · Industry Standard</span>
+      <p class="tc-desc">Used to create the primary forensically sound disk image. FTK Imager creates bit-for-bit copies of storage media with cryptographic hash verification (MD5/SHA-1) — ensuring the forensic image is provably identical to the original evidence. Used by law enforcement and forensic labs globally.</p>
+      <span class="tc-used">Used for: Primary disk imaging · Hash generation · Evidence preservation</span>
+    </div>
+    <div class="tool-card">
+      <span class="tc-role">Secondary Imaging Tool</span>
+      <div class="tc-name">OSForensics</div>
+      <span class="tc-type">Forensic Suite · PassMark Software · Windows</span>
+      <p class="tc-desc">Used as the second imaging method to cross-validate the FTK image. OSForensics provides high-performance file search, indexing, and imaging — including hash matching, registry analysis, MFT analysis, timeline analysis, and memory analysis. The dual-image approach confirms evidence integrity.</p>
+      <span class="tc-used">Used for: Secondary imaging · Hash verification · Cross-validation</span>
+    </div>
+    <div class="tool-card">
+      <span class="tc-role">Primary Analysis Tool</span>
+      <div class="tc-name">Autopsy</div>
+      <span class="tc-type">Forensic Analysis · Open Source · GUI Platform</span>
+      <p class="tc-desc">The primary analysis platform — providing file carving, keyword search, timeline analysis, hash lookup, recent activity, email parsing, and encryption detection. Autopsy's GUI enables systematic, documented examination of the forensic image with structured reporting output.</p>
+      <span class="tc-used">Used for: File analysis · Timeline · Hash lookup · Report generation</span>
+    </div>
+    <div class="tool-card">
+      <span class="tc-role">Secondary Analysis Tool</span>
+      <div class="tc-name">Bulk Extractor</div>
+      <span class="tc-type">Data Extraction · Command Line · Cross-Platform</span>
+      <p class="tc-desc">A forensic tool that scans disk images linearly — bypassing the file system entirely to extract emails, URLs, credit card numbers, GPS coordinates, and network data directly from raw bytes. Particularly powerful for detecting data that file-system-based tools miss.</p>
+      <span class="tc-used">Used for: Email extraction · Network analysis · Metadata · Social media data</span>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY -->
+<div class="sec-dk" id="methodology">
+  <div class="sh fade"><span class="snum">03 /</span><h2 class="st">Investigation Methodology</h2><div class="sr"></div></div>
+  <div class="steps fade">
+    <div class="step">
+      <div class="step-l"><div class="step-num">01</div><div class="step-line"></div></div>
+      <div class="step-c">
+        <div class="step-title" style="color:var(--paper)">Evidence Receipt &amp; Chain-of-Custody Initiation</div>
+        <div class="step-body" style="color:rgba(247,243,236,0.5)">Digital evidence received from the F21FO Canvas portal. Chain-of-custody log initiated immediately — recording receipt timestamp, evidence identifier, storage location, and investigator name. No modifications made to evidence before imaging. Evidence hash recorded for later verification.</div>
+        <span class="step-detail">NIST Principle: Preserve evidence integrity before any analysis begins</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-l"><div class="step-num">02</div><div class="step-line"></div></div>
+      <div class="step-c">
+        <div class="step-title" style="color:var(--paper)">Forensic Imaging — FTK Imager</div>
+        <div class="step-body" style="color:rgba(247,243,236,0.5)">Created a bit-for-bit forensic image of the evidence using FTK Imager. Generated MD5 and SHA-1 hashes of both the original evidence and the resulting image — confirming identical bit-level copies. Image saved in .E01 (Expert Witness Format) for maximum metadata preservation. Chain-of-custody log updated with imaging start/end timestamps.</div>
+        <span class="step-detail">Tool: FTK Imager · Format: .E01 · Verification: MD5 + SHA-1 hash match</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-l"><div class="step-num">03</div><div class="step-line"></div></div>
+      <div class="step-c">
+        <div class="step-title" style="color:var(--paper)">Forensic Imaging — OSForensics (Cross-Validation)</div>
+        <div class="step-body" style="color:rgba(247,243,236,0.5)">Created a second forensic image using OSForensics to independently verify imaging integrity. Compared hash values between FTK and OSForensics images — confirming evidence was not modified during the imaging process. Discrepancies between imaging results would have flagged potential evidence tampering or tool error.</div>
+        <span class="step-detail">Tool: OSForensics · Purpose: Cross-validation · Result: Hash values matched</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-l"><div class="step-num">04</div><div class="step-line"></div></div>
+      <div class="step-c">
+        <div class="step-title" style="color:var(--paper)">Deep Analysis — Autopsy</div>
+        <div class="step-body" style="color:rgba(247,243,236,0.5)">Loaded forensic image into Autopsy for systematic examination. Ran file analysis, keyword search, timeline analysis, hash lookup (against known malicious hash databases), recent activity analysis, email parsing, and encryption detection. Identified files of interest and documented findings with file paths, timestamps, and metadata.</div>
+        <span class="step-detail">Techniques: File carving · Timeline · Hash lookup · Email parser · Encryption detection</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-l"><div class="step-num">05</div><div class="step-line"></div></div>
+      <div class="step-c">
+        <div class="step-title" style="color:var(--paper)">Data Extraction — Bulk Extractor</div>
+        <div class="step-body" style="color:rgba(247,243,236,0.5)">Applied Bulk Extractor to scan the forensic image at the raw byte level — extracting email addresses, URLs, network traffic data, GPS coordinates, and social media artefacts. This file-system-agnostic approach recovered data that Autopsy's file-system-based analysis could not access — demonstrating the complementary value of dual-tool analysis.</div>
+        <span class="step-detail">Techniques: Linear scan · Email extraction · Network analysis · Histogram analysis</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-l"><div class="step-num">06</div><div class="step-line"></div></div>
+      <div class="step-c">
+        <div class="step-title" style="color:var(--paper)">Technical Report &amp; Video Demonstration</div>
+        <div class="step-body" style="color:rgba(247,243,236,0.5)">Produced a comprehensive technical report documenting the full investigation — introduction, forensic imaging process, analysis findings, chain-of-custody appendix, and critical reflection. Submitted alongside a 5-minute demonstration video showcasing imaging and analysis in action. Report structured to meet court-submission standards.</div>
+        <span class="step-detail">Deliverables: Technical report (8 pages) + 5-minute screencast demonstration</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYSIS TECHNIQUES -->
+<section class="sec" id="analysis">
+  <div class="sh fade"><span class="snum">04 /</span><h2 class="st">Analysis Techniques Demonstrated</h2><div class="sr"></div></div>
+  <div class="analysis-grid fade">
+    <div class="an-card">
+      <div class="an-title" style="color:var(--text)">File Recovery</div>
+      <div class="an-body" style="color:var(--muted)">Scenario: A McDonald's employee accidentally formatted a USB device containing confidential product launch data. Using Autopsy's PhotoRec carving, keyword search, and file analysis features, all deleted files were recovered from unallocated space — demonstrating that formatting does not destroy data.</div>
+      <span class="an-tech" style="color:var(--teal)">Tool: Autopsy · Technique: File carving + unallocated space scan</span>
+    </div>
+    <div class="an-card">
+      <div class="an-title" style="color:var(--text)">Hash Analysis</div>
+      <div class="an-body" style="color:var(--muted)">Scenario: PwC suspected an employee of tampering with or stealing data via USB. Using Autopsy's hash lookup feature with a pre-existing known-file hash database, tampered files were automatically flagged — distinguishing original files from modified copies without manual comparison.</div>
+      <span class="an-tech" style="color:var(--teal)">Tool: Autopsy · Technique: MD5/SHA-1 hash comparison · Known-bad database</span>
+    </div>
+    <div class="an-card">
+      <div class="an-title" style="color:var(--text)">Entropy Analysis</div>
+      <div class="an-body" style="color:var(--muted)">Scenario: Google's security team found suspicious encrypted files on an employee's machine. Using Autopsy's encryption detection and file metadata analysis, files protected with 7-Zip password encryption were identified and flagged — providing investigators with the evidence needed to establish intent.</div>
+      <span class="an-tech" style="color:var(--teal)">Tool: Autopsy · Technique: Encryption detection + metadata analysis</span>
+    </div>
+    <div class="an-card">
+      <div class="an-title" style="color:var(--text)">Email Analysis</div>
+      <div class="an-body" style="color:var(--muted)">Scenario: McDonald's security team suspected data exfiltration via email. Using Bulk Extractor's email analysis feature, all outbound emails from the employee's machine were extracted — including headers, content, and recipient addresses. Evidence of corporate data being sent to a competitor was recovered.</div>
+      <span class="an-tech" style="color:var(--teal)">Tool: Bulk Extractor · Technique: Email header + content extraction</span>
+    </div>
+    <div class="an-card">
+      <div class="an-title" style="color:var(--text)">Network Analysis</div>
+      <div class="an-body" style="color:var(--muted)">Scenario: Unauthorised data was transferred from Heriot-Watt's Robotarium lab network. Network traffic was captured using tcpdump and analysed using Bulk Extractor's network analysis module — extracting IP histograms and identifying a suspicious external IP address, which was then blocked.</div>
+      <span class="an-tech" style="color:var(--teal)">Tool: Bulk Extractor · Technique: PCAP analysis + IP histogram</span>
+    </div>
+    <div class="an-card">
+      <div class="an-title" style="color:var(--text)">Timeline Analysis</div>
+      <div class="an-body" style="color:var(--muted)">Using Autopsy's timeline analysis module, all file system events (creation, modification, access, deletion) were mapped chronologically — enabling reconstruction of the suspect's activity sequence. Timeline evidence is critical for establishing intent and motive in court proceedings.</div>
+      <span class="an-tech" style="color:var(--teal)">Tool: Autopsy · Technique: File system event timeline reconstruction</span>
+    </div>
+  </div>
+</section>
+
+<!-- CHAIN OF CUSTODY -->
+<div class="sec-dk" id="custody">
+  <div class="sh fade"><span class="snum">05 /</span><h2 class="st">Chain of Custody</h2><div class="sr"></div></div>
+  <p class="fade" style="font-size:.95rem;color:rgba(247,243,236,0.52);line-height:1.82;max-width:680px;margin-bottom:32px">Chain-of-custody documentation is what transforms a file scan into legally admissible evidence. Every action taken on the evidence was logged — because in a real investigation, a broken chain means evidence is thrown out of court.</p>
+  <div class="fade" style="overflow-x:auto">
+    <table class="coc-table">
+      <thead><tr><th>Stage</th><th>Action</th><th>Tool Used</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Evidence Receipt</td><td>Digital evidence received, identifier logged, hash recorded</td><td>Manual documentation</td><td><span class="badge badge-green">Completed ✓</span></td></tr>
+        <tr><td>Primary Imaging</td><td>Bit-for-bit forensic image created, MD5 + SHA-1 generated</td><td>FTK Imager (.E01)</td><td><span class="badge badge-green">Verified ✓</span></td></tr>
+        <tr><td>Secondary Imaging</td><td>Independent image created for cross-validation</td><td>OSForensics</td><td><span class="badge badge-green">Verified ✓</span></td></tr>
+        <tr><td>Hash Verification</td><td>Image hashes compared to original — confirmed identical</td><td>FTK + OSForensics</td><td><span class="badge badge-green">Match Confirmed ✓</span></td></tr>
+        <tr><td>Primary Analysis</td><td>Deep forensic examination of image contents</td><td>Autopsy</td><td><span class="badge badge-blue">Documented</span></td></tr>
+        <tr><td>Secondary Analysis</td><td>Raw byte extraction and network data analysis</td><td>Bulk Extractor</td><td><span class="badge badge-blue">Documented</span></td></tr>
+        <tr><td>Report Submission</td><td>Technical report + video demonstration submitted</td><td>Canvas submission</td><td><span class="badge badge-green">Submitted ✓</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:40px" class="fade">
+    <div style="border:1px solid rgba(184,144,42,0.25);border-radius:3px;padding:28px;background:rgba(184,144,42,0.05)">
+      <div style="font-family:var(--ffm);font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(184,144,42,0.6);margin-bottom:12px">Skills Demonstrated</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px">
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Digital Forensics</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Forensic Imaging</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Evidence Integrity</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Chain of Custody</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Hash Verification</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">File Carving</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">NIST Guidelines</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Technical Reporting</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Email Analysis</span>
+        <span style="font-family:var(--ffm);font-size:.65rem;background:rgba(247,243,236,0.05);border:1px solid rgba(247,243,236,0.1);color:rgba(247,243,236,0.5);padding:3px 10px;border-radius:2px">Network Forensics</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <a class="bn-prev" href="umang_shah_BEEFENSE.html">
+    <span class="bn-label">← Previous Project</span>
+    <span class="bn-title">BeEFense</span>
+  </a>
+  <a class="bn-next" href="umang_shah_SECUREPGP.html">
+    <span class="bn-label">Next Project →</span>
+    <span class="bn-title">SecurePGP</span>
+  </a>
+</div>
+
+<footer>
+  <span class="fc">© 2025 Umang Shah · Heriot-Watt University · NCSC-Certified MSc</span>
+  <span class="fa">Umang <span>Shah</span></span>
+  <span class="fc">umangshah019@gmail.com</span>
+</footer>
+
+<script>
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target)}})
+},{threshold:0.08,rootMargin:'0px 0px -30px 0px'})
+document.querySelectorAll('.fade').forEach(el=>obs.observe(el))
+</script>
+</body>
+</html>
